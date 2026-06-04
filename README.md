@@ -14,6 +14,41 @@
 
 訊息用中性模型表達，連結寫 `[文字](url)`，各通道自動轉成該平台格式。
 
+## 安裝
+
+零執行期依賴、跨平台（macOS / Linux / Windows）。免安裝可直接 `python3 -m notifykit ...`；想要 `notifykit` 指令就裝起來。
+
+**一鍵安裝腳本**（建 venv → editable 安裝 → 備好 config.json）：
+
+```bash
+# macOS / Linux
+./install.sh                 # 加 --yaml 連 PyYAML 一起裝
+```
+```powershell
+# Windows（PowerShell）
+.\install.ps1                # 加 -Yaml 連 PyYAML 一起裝
+# 若被執行原則擋下：Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+**或手動**：
+
+```bash
+# macOS / Linux
+python3 -m venv .venv
+.venv/bin/pip install -e .            # .yaml 設定檔：.venv/bin/pip install -e '.[yaml]'
+.venv/bin/notifykit --help
+```
+```powershell
+# Windows（PowerShell）
+py -3 -m venv .venv
+.venv\Scripts\pip install -e .        # .yaml 設定檔：.venv\Scripts\pip install -e '.[yaml]'
+.venv\Scripts\notifykit --help
+```
+
+或用 **pipx** 當全域 CLI 工具（兩平台皆可）：`pipx install .`
+
+裝好後下面的 `python3 -m notifykit` 都可改成 `notifykit`（Windows venv 執行檔在 `.venv\Scripts\`）。
+
 ## 快速開始
 
 ```bash
