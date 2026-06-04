@@ -1,5 +1,6 @@
 """通道 adapter：把 Message render 後送到 Slack / Telegram / LINE。零依賴（urllib）。"""
 import json
+import urllib.error
 import urllib.request
 
 from .render import render_slack, render_telegram, render_line
@@ -10,8 +11,12 @@ def _post(url, payload, headers=None, timeout=20):
     req.add_header("Content-Type", "application/json")
     for k, v in (headers or {}).items():
         req.add_header(k, v)
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.status, resp.read().decode("utf-8", "replace")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status, resp.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as e:  # 帶回 API 回應 body，方便看出錯在哪
+        body = e.read().decode("utf-8", "replace").strip()
+        raise RuntimeError(f"HTTP {e.code}：{body or e.reason}") from None
 
 
 class Channel:
@@ -54,7 +59,7 @@ class TelegramChannel(Channel):
         url = f"https://api.telegram.org/bot{self.cfg['token']}/sendMessage"
         return _post(url, {
             "chat_id": self.cfg["chat_id"],
-            "text": r,
+            "text": r[:4096],  # Telegram 單則上限 4096 字元
             "parse_mode": "HTML",
             "disable_web_page_preview": True,
         })

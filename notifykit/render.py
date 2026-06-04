@@ -11,8 +11,20 @@ _LINK = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
 
 # ---- Slack ----
+def _slack_esc(s: str) -> str:
+    # Slack text 需 escape & < >（否則內文的這些字元會被當特殊語法）
+    return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def _slack_inline(t: str) -> str:
-    return _LINK.sub(lambda m: f"<{m.group(2)}|{m.group(1)}>", t)
+    # 先把連結外的文字 escape，再放回 <url|文字>（url/文字本身也 escape）
+    parts, last = [], 0
+    for m in _LINK.finditer(t):
+        parts.append(_slack_esc(t[last:m.start()]))
+        parts.append(f"<{_slack_esc(m.group(2))}|{_slack_esc(m.group(1))}>")
+        last = m.end()
+    parts.append(_slack_esc(t[last:]))
+    return "".join(parts)
 
 
 def render_slack(msg) -> str:

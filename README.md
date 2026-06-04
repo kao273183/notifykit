@@ -24,7 +24,8 @@ cp config.example.json config.json   # 填入各通道 token/webhook
 python3 -m notifykit --config config.json --dry-run run
 
 # 3. 手動發一則（body 支援 [文字](url)；'-' 讀 stdin）
-python3 -m notifykit --config config.json send --title "部署完成" --body "v1.2.3 上線\n- [release](https://x/r/1.2.3)"
+#    多行：bash/zsh 用 $'...\n...'；PowerShell 用 "...`n..."（雙引號內反引號 n）
+python3 -m notifykit --config config.json send --title "部署完成" --body $'v1.2.3 上線\n- [release](https://x/r/1.2.3)'
 echo "管線也行" | python3 -m notifykit --config config.json send --title "Build"
 
 # 4. 跑設定裡的 source（例：command source 包你的腳本）
