@@ -1,0 +1,26 @@
+{
+  "source": {
+    "type": "command",
+    "title": "每日摘要",
+    "command": "printf '今天有 3 件事\\n- [PR #12](https://github.com/x/y/pull/12) 已 merge\\n- 部署完成\\n- 1 個待辦逾期'"
+  },
+  "channels": [
+    {
+      "type": "slack",
+      "enabled": true,
+      "webhook_url": "https://hooks.slack.com/services/XXX/YYY/ZZZ"
+    },
+    {
+      "type": "telegram",
+      "enabled": false,
+      "token": "123456:ABC-DEF...",
+      "chat_id": "123456789"
+    },
+    {
+      "type": "line",
+      "enabled": false,
+      "token": "CHANNEL_ACCESS_TOKEN",
+      "to": "Uxxxxxxxxxxxxxxxx"
+    }
+  ]
+}
