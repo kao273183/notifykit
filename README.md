@@ -66,12 +66,36 @@ Slack App → Incoming Webhooks → 開啟 → Add New Webhook → 複製 URL �
 }
 ```
 `enabled:false` 的通道會跳過。**token/webhook 是機密，config.json 勿進 git**（用 `.gitignore`）。
+`command` source 的指令會經 shell 執行（`shell=True`），**勿放不可信內容**。
+
+## 資料源（source.type）
+
+全部零依賴（`urllib` / `xml.etree` / `base64`），`run` 時會 `fetch()` 成 Message：
+
+| type | 用途 | 必填 | 可選 |
+|------|------|------|------|
+| `static` | 固定文字 | — | `title`, `body` |
+| `command` | 跑 shell 指令、stdout 當 body（可包任何腳本） | `command` | `title`, `timeout` |
+| `rss` | RSS / Atom feed 最新 N 則標題+連結 | `url` | `title`, `limit`(10) |
+| `github` | repo 最新 releases / commits / pulls | `repo`(`owner/name`) | `kind`(releases), `token`, `limit`(10), `title` |
+| `http_json` | GET 任意 JSON API，用 dot path 抽欄位 | `url` | `headers`, `list_path`, `title_key`(title), `url_key`, `limit`(10), `title` |
+| `jira` | JQL 撈 issues（Atlassian API token，Basic auth） | `base_url`, `jql` | `email`, `token`, `limit`(20), `title` |
+
+```jsonc
+{ "type": "rss",    "url": "https://github.com/python/cpython/releases.atom", "limit": 5 }
+{ "type": "github", "repo": "pallets/flask", "kind": "releases", "token": "ghp_..." }
+{ "type": "http_json", "url": "https://api.example.com/news",
+  "list_path": "data.items", "title_key": "headline", "url_key": "link" }
+{ "type": "jira", "base_url": "https://you.atlassian.net",
+  "jql": "assignee=currentUser() AND statusCategory!=Done ORDER BY updated DESC",
+  "email": "you@x.com", "token": "ATATT..." }
+```
+`http_json` 的 `list_path` / `title_key` / `url_key` 支援 dot path（含數字索引，如 `data.items.0.title`）；省略 `list_path` 則整個 response 當單筆/陣列。
 
 ## 擴充
 
 - **新通道**：在 `channels.py` 加一個 `Channel` 子類（實作 `render` + `_send`）並註冊到 `REGISTRY`。
-- **新資料源**：在 `sources.py` 加 `Source` 子類（實作 `fetch()->Message`）並註冊。
-  - 例：把現有 jira-daily 包成 `CommandSource`（`command` 指向那支腳本）即可串通；之後再寫原生 `JiraSource`。
+- **新資料源**：在 `sources.py` 加 `Source` 子類（實作 `fetch()->Message`）並註冊到 `REGISTRY`。
 
 ## 模組用法
 ```python
