@@ -3,6 +3,7 @@
 - Slack：mrkdwn（`*粗*`、連結 `<url|文字>`）
 - Telegram：HTML parse_mode（`<b>`、`<a href>`；escape 只需處理 & < >，比 MarkdownV2 省事）
 - LINE：純文字（text message 不吃 markdown）
+- Lark / 飛書：lark_md（互動卡片；原生吃 `**粗**` 與 `[文字](url)`，原樣帶過即可）
 """
 import html as _html
 import re
@@ -79,4 +80,19 @@ def render_line(msg) -> str:
         out.extend(_line_inline(ln) for ln in s.lines)
     if msg.footer:
         out.append(f"\n{_line_inline(msg.footer)}")
+    return "\n".join(out)
+
+
+# ---- Lark / 飛書 (lark_md) ----
+def render_lark(msg) -> str:
+    # lark_md 原生支援 **粗體** 與 [文字](url)，中性模型的連結語法相同，原樣帶過即可
+    out = []
+    if msg.title:
+        out.append(f"**{msg.title}**")
+    for s in msg.sections:
+        if s.heading:
+            out.append(f"\n**{s.heading}**")
+        out.extend(s.lines)
+    if msg.footer:
+        out.append(f"\n{msg.footer}")
     return "\n".join(out)

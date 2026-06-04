@@ -1,6 +1,6 @@
 # notifykit
 
-通用多通道通知器 — 把任何資料源的摘要，發到 **Slack / Telegram / LINE**。
+通用多通道通知器 — 把任何資料源的摘要，發到 **Slack / Telegram / LINE / Lark（飛書）**。
 零依賴（只用 Python 3 stdlib）、專案無關、可當 CLI 或 import 模組。
 
 ## 設計
@@ -9,7 +9,8 @@
 資料源(Source) → 中性 Message(title + sections + [文字](url)) → 各通道 render + 送出
   ├ static / command（內建）          ├ Slack    (mrkdwn, webhook)
   └ 自訂(jira/github/rss…)            ├ Telegram (HTML, Bot API)
-                                      └ LINE     (純文字, Messaging API push)
+                                      ├ LINE     (純文字, Messaging API push)
+                                      └ Lark     (lark_md 互動卡片, 自訂機器人 webhook)
 ```
 
 訊息用中性模型表達，連結寫 `[文字](url)`，各通道自動轉成該平台格式。
@@ -87,6 +88,12 @@ Slack App → Incoming Webhooks → 開啟 → Add New Webhook → 複製 URL �
 3. 取收訊者 **userId / groupId**（加好友後從 webhook event 拿，或用自己的 userId）填 `to`。
 4. 免費方案 push 訊息有額度限制。
 
+### Lark / 飛書（自訂機器人，最快）
+1. 群組 → 設定 → 群機器人 → 新增「自訂機器人 / Custom Bot」→ 複製 **webhook URL** 填 `webhook_url`。
+2. （選填）若機器人安全設定選了「簽名校驗」，把簽名密鑰填 `secret`，會自動帶 `timestamp + sign`。
+   - 也可改用「關鍵字」或「IP 白名單」驗證，那種就不用填 `secret`。
+3. 國際版網域為 `open.larksuite.com`、中國飛書為 `open.feishu.cn`，直接貼完整 URL 即可，不用區分。
+
 ## 設定檔
 
 `config.json`（或裝了 `pyyaml` 後用 `.yaml`）：
@@ -96,7 +103,8 @@ Slack App → Incoming Webhooks → 開啟 → Add New Webhook → 複製 URL �
   "channels": [
     { "type": "slack",    "enabled": true,  "webhook_url": "..." },
     { "type": "telegram", "enabled": true,  "token": "...", "chat_id": "..." },
-    { "type": "line",     "enabled": false, "token": "...", "to": "..." }
+    { "type": "line",     "enabled": false, "token": "...", "to": "..." },
+    { "type": "lark",     "enabled": true,  "webhook_url": "...", "secret": "（選填）" }
   ]
 }
 ```
