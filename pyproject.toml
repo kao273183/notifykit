@@ -9,7 +9,7 @@ description = "通用多通道通知器 — 把任何資料源的摘要發到 Sl
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
-authors = [{ name = "kao273183" }]
+authors = [{ name = "MiniKao(Jack.Kao)" }]
 dependencies = []                 # 執行期零依賴（只用 stdlib）
 
 [project.optional-dependencies]
